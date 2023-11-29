@@ -5,8 +5,7 @@
 Experiment 1:
 A halleri PL35 exposed to control 10uM, 500uM, 1000uM Zn
 Every week measurements are taken
-- hyper (30 cm distance between probe and pot)
-- photosynthesis 3 leaves
+- Areal hyperspectral measurements (30 cm distance between probe and pot) - photosynthesis 3 leaves
 - fresh biomass
 - plant height
 - root length
@@ -16,6 +15,7 @@ Every week measurements are taken
 Experiment 2:
 
 A halleri PL27 control and sequential exposure to Zn
+- Hyperspectral measurements with clips
 - 2 leaves harvest from each pot
 - 2 leaves photosynthesis + 3 other leaves photosynthesis
 - leaf mass, leaf area in the scanner
