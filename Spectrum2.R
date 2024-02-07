@@ -12,6 +12,8 @@ setwd("C:/Users/twlodarczyk/OneDrive - University of Arizona/Desktop/All documen
 dt <-read.delim("Ahall_V2.txt")
 
 
+
+{
 # Assuming data is already loaded and in the correct format
 
 # Convert data to long format
@@ -33,4 +35,6 @@ summary_data <- long_data %>%
 
 # Print the results
 print(summary_data)
+}
+
 
