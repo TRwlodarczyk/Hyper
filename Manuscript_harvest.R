@@ -5,9 +5,42 @@
 library(tidyverse)
 library(ggpubr)
 library(pls)
+library(openxlsx)
+library(stringr)
+
 
 setwd("C:/Users/twlodarczyk/OneDrive - University of Arizona/Desktop/All documents/1 PhD/CNRS + Synch/Hyperspectral Research/1_Experiment/Analysis")
 dt <-read.delim("Area_harvest_spec.txt")
+dt2 <-read.delim("Ahal_pXRF-Feb24.txt")
+dt3 <-read.delim("All_harvest_pXRF.txt")
+dt2[,5:27] <- sapply(dt2[,5:27],as.numeric)
+
+
+dt3 <- dt3 %>%
+  filter(str_detect(ID, "^av_"))
+
+dt_sd <- dt3 %>%
+  filter(str_detect(ID, "_sd")) %>%
+  mutate(ID = str_replace(ID, "_sd", "")) %>%
+  pivot_longer(cols = 29:2179, names_to = "Wavelength", values_to = "SD")
+
+dt_main_long <- dt3 %>%
+  filter(!str_detect(ID, "_sd")) %>%
+  pivot_longer(cols = 29:2179, names_to = "Wavelength", values_to = "Reflectance")
+
+dt_combined <- dt_main_long %>%
+  left_join(select(dt_sd, ID, Wavelength, SD), by = c("ID", "Wavelength"))
+
+dt_combined <- dt_combined %>%
+  mutate(Wavelength = str_replace_all(Wavelength, "X", ""))
+
+dt_combined[,"Wavelength"] <- sapply(dt_combined[,"Wavelength"],as.numeric)
+
+dt_combined <- dt_combined %>%
+  filter(Reflectance >= 0 & Wavelength > 400 & Wavelength <= 2450)
+
+#write.table(dt_combined, file="C:/Users/twlodarczyk/OneDrive - University of Arizona/Desktop/All documents/1 PhD/CNRS + Synch/Hyperspectral Research/1_Experiment/Analysis/Ahal_harvest_long.csv", sep=",", row.names = F)
+
 
 {
 long_data <- dt %>%
@@ -130,5 +163,241 @@ long_data <- long_data %>%
   }
 
 }
+
+#Create summary statistics
+{
+# Define the standard error function
+se <- function(x) { sd(x, na.rm = TRUE) / sqrt(length(na.omit(x))) }
+
+# Revised code
+dt2_av <- dt2 %>%
+  group_by(ID) %>%
+  select(5:27) %>%
+  summarise(across(everything(), list(
+    min = ~min(.x, na.rm = TRUE),
+    max = ~max(.x, na.rm = TRUE),
+    mean = ~mean(.x, na.rm = TRUE),
+    median = ~median(.x, na.rm = TRUE),
+    sd = ~sd(.x, na.rm = TRUE),
+    se = ~se(.x) # Use the standard error function
+  ), .names = "{.col}_{.fn}"), .groups = "drop") %>%
+  pivot_longer(cols = -ID, names_to = "Parameter_Stat", values_to = "Value") %>%
+  separate(Parameter_Stat, into = c("Parameter", "Stat"), sep = "_", extra = "merge") %>%
+  pivot_wider(names_from = Stat, values_from = Value)
+
+
+write.xlsx(dt2_av, file = "Summmary_pXRF2.xlsx")
+}
+
+
+
+#Correlation dt3
+{
+
+dt3 <- dt3 %>%
+  slice(61:100)
+  
+  columns_to_remove <- c(29:78, 2130:2179)
+  dt3 <- dt3 %>%
+    select(-all_of(columns_to_remove))
+  
+# Assuming dt3 is your dataset and it contains a column for Zn concentration correctly named "Zn"
+library(openxlsx)
+
+# Create an empty dataframe to store the correlation coefficients
+# Adjust the size of the dataframe based on actual columns of interest (2170 = 2175 - 5)
+cor_df <- data.frame(variable = character(2173), correlation = numeric(2173), stringsAsFactors = FALSE)
+
+# Loop through each column from 6 (indices values) to 2175 (spectral reflectance)
+for (i in 7:2179) {
+  # Calculate the Spearman correlation between column i and "Zn_concentration"
+  correlation <- cor(dt3[, i], dt3$Zn, method = "spearman", use = "complete.obs")
+  
+  # Store the variable name and correlation coefficient in the dataframe
+  cor_df[i - 5, "variable"] <- names(dt3)[i]
+  cor_df[i - 5, "correlation"] <- correlation
+}
+
+# Remove rows with NA (in case some correlations could not be computed)
+cor_df <- na.omit(cor_df)
+
+# Optionally, write the correlation coefficients to an Excel file
+write.xlsx(cor_df, file = "Correlation_Coefficients3.xlsx")
+
+}
+
+#Spectrum view
+{
+  #####
+  dt3 <- dt3 %>%
+    filter(str_detect(ID, "^av_"))
+  
+  dt_sd <- dt3 %>%
+    filter(str_detect(ID, "_sd")) %>%
+    mutate(ID = str_replace(ID, "_sd", "")) %>%
+    pivot_longer(cols = 29:2179, names_to = "Wavelength", values_to = "SD")
+
+  dt_main_long <- dt3 %>%
+    filter(!str_detect(ID, "_sd")) %>%
+    pivot_longer(cols = 29:2179, names_to = "Wavelength", values_to = "Reflectance")
+
+  dt_combined <- dt_main_long %>%
+    left_join(select(dt_sd, ID, Wavelength, SD), by = c("ID", "Wavelength"))
+  
+
+  #write.xlsx(dt_combined, "dt_combined.xlsx", rowNames = FALSE)
+  
+
+ # dt_long <- dt_long %>%
+#    mutate(Reflectance = if_else(!is.na(SD), NA_real_, Reflectance))
+  ######
+  
+  dt_combined <- dt_combined %>%
+    mutate(Wavelength = str_replace_all(Wavelength, "X", ""))
+  
+  dt_combined[,"Wavelength"] <- sapply(dt_combined[,"Wavelength"],as.numeric)
+  
+  dt_combined <- dt_combined %>%
+    filter(Reflectance >= 0)
+  dt_combined <- dt_combined %>%
+    filter(Reflectance >= 0 & Wavelength > 400 & Wavelength <= 2450)
+  
+  harvest2 <- ggplot(dt_combined, aes(x = Wavelength, y = Reflectance, group = ID, color = Treatment)) + 
+    geom_ribbon(aes(ymin = Reflectance - SD, ymax = Reflectance + SD, fill = Treatment), alpha = 0.2, colour=NA) + # Adjusted alpha for SD shadow
+    geom_line(linewidth=0.5) +   # 
+    geom_point(size=0.2, alpha = 0.5) +  #
+    theme_minimal() + 
+    labs(title = "Harvest measurements",
+         x = "Wavelength (nm)",
+         y = "Reflectance") +
+    scale_color_viridis_d() + # 
+    scale_fill_viridis_d()    #
+  
+  library(viridis) # For viridis color scales
+  
+  harvest2 <- ggplot(dt_combined, aes(x = Wavelength, y = Reflectance, group = ID, color = Treatment)) + 
+    geom_ribbon(aes(ymin = Reflectance - SD, ymax = Reflectance + SD, fill = Treatment), alpha = 0.2, colour=NA) + # Adjusted alpha for SD shadow
+    geom_line(linewidth=0.5) +   # 
+    geom_point(size=0.2, alpha = 0.5) +  #
+    geom_vline(xintercept = 606, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 512, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 536, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 718, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 831, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 2235, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 1881, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 1420, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    theme_minimal() + 
+    labs(title = "Harvest measurements",
+         x = "Wavelength (nm)",
+         y = "Reflectance") +
+    scale_color_viridis_d() + # 
+    scale_fill_viridis_d()    #
+  
+  
+  
+  
+  harvest2 <- ggplot(dt_combined, aes(x = Wavelength, y = Reflectance, group = ID, color = Treatment)) + 
+    geom_ribbon(aes(ymin = Reflectance - SD, ymax = Reflectance + SD, fill = Treatment), alpha = 0.2, colour=NA) + # Adjusted alpha for SD shadow
+    geom_line(linewidth=0.5) +   # 
+    geom_point(size=0.2, alpha = 0.5) +  #
+    geom_vline(xintercept = 514, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 518, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 707, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 523, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 536, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 1410, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 703, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 1397, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 2420, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1420, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 2347, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 2420, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1880, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1424, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1506, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1417, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1539, linetype = "dashed", color = "red") +# Add a vertical dashed red line at 606 nm
+    theme_minimal() + 
+    labs(title = "Harvest measurements",
+         x = "Wavelength (nm)",
+         y = "Reflectance") +
+    scale_color_viridis_d() + # 
+    scale_fill_viridis_d()    #
+  
+  
+
+  library(plotly)
+  
+  # Convert the ggplot object to a plotly object
+  harvest2_plotly <- ggplotly(harvest2)
+  
+  # Display the interactive plot
+  harvest2_plotly
+  
+  library(htmlwidgets)
+  
+  # Save your Plotly plot to an HTML file
+  saveWidget(harvest2_plotly, "harvest2_plotly2.html")
+  
+  
+}
+
+
+#PCA
+{
+  
+  library(tidyverse)
+  library(factoextra) # For PCA and fviz_cluster
+  library(cluster)    # For clustering
+  
+  # Step 1: Reshape the data for PCA
+  dt_pca_ready <- dt_combined %>%
+    select(ID, Wavelength, Reflectance) %>%
+    spread(key = Wavelength, value = Reflectance)
+  
+  # Remove any NA values or impute them as necessary
+  # For simplicity, here we'll remove them
+  dt_pca_ready <- na.omit(dt_pca_ready)
+  
+  # Step 2: Perform PCA on the Reflectance values
+  pca_results <- prcomp(dt_pca_ready[,-1], scale. = TRUE) # Exclude ID column for PCA
+  
+  # Step 3: Cluster PCA results into 3 clusters
+  set.seed(123) # For reproducibility
+  clusters <- kmeans(pca_results$x, centers = 3)
+  
+  # Visualize PCA results with clusters
+  fviz_cluster(list(data = pca_results$x, cluster = clusters$cluster))
+
+  
+  # Assuming pca_results and clusters are already computed
+  # And dt_pca_ready contains the original IDs
+  
+  # Convert PCA results to a data frame
+  pca_df <- as.data.frame(pca_results$x)
+  
+  # Add cluster assignments to pca_df
+  pca_df$Cluster <- clusters$cluster
+  
+  # Ensure the row order in pca_df matches dt_pca_ready to correctly align IDs
+  pca_df$ID <- dt_pca_ready$ID
+  
+  # Now, let's plot with ggplot2, including IDs
+  library(ggplot2)
+  
+  ggplot(pca_df, aes(x = PC1, y = PC2, label = ID, color = as.factor(Cluster))) +
+    geom_point() +  # Add points for PCA results
+    geom_text(aes(label = ID), vjust = 2, hjust = 0.5, size = 3, check_overlap = TRUE) +  # Annotate points with IDs
+    scale_color_manual(values = c("red", "blue", "green")) +  # Customize cluster colors if desired
+    theme_minimal() +
+    labs(title = "PCA Clusters with IDs", x = "Principal Component 1", y = "Principal Component 2") +
+    theme(legend.title = element_blank())  # Hide the legend title if desired
+  
+  #it suggest that spectra can distinguish between high and low Zn, but not between high and medium
+  
+}
+
+
 
 

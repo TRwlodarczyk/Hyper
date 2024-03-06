@@ -6,7 +6,7 @@ library(tidyverse)
 library(viridis)
 
 setwd("C:/Users/twlodarczyk/OneDrive - University of Arizona/Desktop/All documents/1 PhD/CNRS + Synch/Hyperspectral Research/1_Experiment/Analysis")
-dt <-read.delim("Area_indicies.txt")
+#dt <-read.delim("Area_indicies.txt")
 dt_av <-read.delim("Ahall_Aver_index.txt")
 
 
@@ -778,11 +778,55 @@ CVI <- ggplot(dt_av, aes(x = Time, y = CVI, group = Treatment, color = Treatment
   scale_color_viridis_d() + # For discrete color scale based on the Treatment
   scale_fill_viridis_d()
 
+NPCI <- ggplot(dt_av, aes(x = Time, y = NPCI, group = Treatment, color = Treatment)) + 
+  geom_ribbon(aes(ymin = NPCI - NPCI_sd, ymax = NPCI + NPCI_sd, fill = Treatment), alpha = 0.15, colour=NA, colour=NA) +
+  geom_point(size=1.5) +  # adds the scatter plot points
+  geom_line(size=0.7) +   # connects the points with lines
+  theme_minimal() + 
+  labs(title = "NPCI",
+       x = "Time",
+       y = "NPCI") +
+  scale_color_viridis_d() + # For discrete color scale based on the Treatment
+  scale_fill_viridis_d()
+
+MCARI <- ggplot(dt_av, aes(x = Time, y = MCARI, group = Treatment, color = Treatment)) + 
+  geom_ribbon(aes(ymin = MCARI - MCARI_sd, ymax = MCARI + MCARI_sd, fill = Treatment), alpha = 0.15, colour=NA, colour=NA) +
+  geom_point(size=1.5) +  # adds the scatter plot points
+  geom_line(size=0.7) +   # connects the points with lines
+  theme_minimal() + 
+  labs(title = "MCARI",
+       x = "Time",
+       y = "MCARI") +
+  scale_color_viridis_d() + # For discrete color scale based on the Treatment
+  scale_fill_viridis_d()
+
+RVSI <- ggplot(dt_av, aes(x = Time, y = RVSI, group = Treatment, color = Treatment)) + 
+  geom_ribbon(aes(ymin = RVSI - RVSI_sd, ymax = RVSI + RVSI_sd, fill = Treatment), alpha = 0.15, colour=NA, colour=NA) +
+  geom_point(size=1.5) +  # adds the scatter plot points
+  geom_line(size=0.7) +   # connects the points with lines
+  theme_minimal() + 
+  labs(title = "RVSI",
+       x = "Time",
+       y = "RVSI") +
+  scale_color_viridis_d() + # For discrete color scale based on the Treatment
+  scale_fill_viridis_d()
+
+MTVI2 <- ggplot(dt_av, aes(x = Time, y = MTVI2, group = Treatment, color = Treatment)) + 
+  geom_ribbon(aes(ymin = MTVI2 - MTVI2_sd, ymax = MTVI2 + MTVI2_sd, fill = Treatment), alpha = 0.15, colour=NA, colour=NA) +
+  geom_point(size=1.5) +  # adds the scatter plot points
+  geom_line(size=0.7) +   # connects the points with lines
+  theme_minimal() + 
+  labs(title = "MTVI2",
+       x = "Time",
+       y = "MTVI2") +
+  scale_color_viridis_d() + # For discrete color scale based on the Treatment
+  scale_fill_viridis_d()
+
 
 library(ggpubr)
 
 ggarrange(NDVI, RENDVI, SRI, PRI, PSRI, NPQI, SIPI, LRDSI,
-          NDWI, GNDVI, WI, CARI, ARI, GRVI, CAI, LCI, CVI, ncol = 4, nrow = 6, 
+          NDWI, GNDVI, WI, CARI, ARI, GRVI, CAI, LCI, CVI, NPCI, MCARI, RVSI, MTVI2, ncol = 4, nrow = 6, 
           common.legend = TRUE)
 
 {
