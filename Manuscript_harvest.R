@@ -13,6 +13,7 @@ setwd("C:/Users/twlodarczyk/OneDrive - University of Arizona/Desktop/All documen
 dt <-read.delim("Area_harvest_spec.txt")
 dt2 <-read.delim("Ahal_pXRF-Feb24.txt")
 dt3 <-read.delim("All_harvest_pXRF.txt")
+dt4 <-read.delim("correlation-with-spectrum.txt")
 dt2[,5:27] <- sapply(dt2[,5:27],as.numeric)
 
 
@@ -398,6 +399,36 @@ write.xlsx(cor_df, file = "Correlation_Coefficients3.xlsx")
   
 }
 
+#correlation with spectrum graph
+{
+ ggplot(dt4, aes(x = variable, y = correlation)) + 
+    #geom_point(size=0.1) +  # 
+    geom_line(size=0.4) +   # 
+    theme_classic2() +
+    scale_x_continuous(limits = c(400, 2500), breaks = c(seq(400, 2500, by = 175))) +
+    scale_y_continuous(limits = c(-0.7, 1), breaks = seq(-0.7, 1, by = 0.2)) +
+    geom_vline(xintercept = 680, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 750, linetype = "dashed", color = "red") +
+    labs(title = "",
+         x = "Wavelengths (nm)",
+         y = "Correlation Coefficient (rho)") +
+    scale_color_viridis_d() 
+  
+  
+  harvest2 <- ggplot(dt_combined, aes(x = Wavelength, y = Reflectance, group = ID, color = Treatment)) + 
+    geom_ribbon(aes(ymin = Reflectance - SD, ymax = Reflectance + SD, fill = Treatment), alpha = 0.2, colour=NA) + # Adjusted alpha for SD shadow
+    geom_line(linewidth=0.3) +   # 
+    #geom_point(size=0.2, alpha = 0.5) +  #
+    theme_classic2() +
+    scale_x_continuous(limits = c(400, 2500), breaks = c(seq(400, 2500, by = 175))) +
 
+    labs(title = "Harvest measurements",
+         x = "Wavelength (nm)",
+         y = "Reflectance") +
+    scale_color_viridis_d() + # 
+    scale_fill_viridis_d()    #
+  
+  
+}
 
 

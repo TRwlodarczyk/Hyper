@@ -196,24 +196,24 @@ ggplot(dt, aes(x = Time, y = New18, group = ID, color = Treatment)) +
        y = "1880-1420/1880+1420") +
   scale_color_viridis_d() 
 }
-ggplot(dt, aes(x = Time, y = New514minus2420, group = ID, color = Treatment)) + 
+a <- ggplot(dt, aes(x = Time, y = New514minus2420, group = ID, color = Treatment)) + 
   geom_point(size=1.5) +  # 
   geom_line(size=0.7) +   # 
   theme_minimal() + 
-  labs(title = "Zinc All",
+  labs(title = "R-sq: 0.64",
        x = "Time",
-       y = "1880-1420/1880+1420") +
+       y = "514 - 2420") +
   scale_color_viridis_d() 
 
 
 
-ggplot(dt, aes(x = Time, y = New518by1420, group = ID, color = Treatment)) + 
+b <- ggplot(dt, aes(x = Time, y = New518by1420, group = ID, color = Treatment)) + 
   geom_point(size=1.5) +  # 
   geom_line(size=0.7) +   # 
   theme_minimal() + 
-  labs(title = "Zinc All",
+  labs(title = "R-sq: 0.621",
        x = "Time",
-       y = "1880-1420/1880+1420") +
+       y = "518/1420") +
   scale_color_viridis_d() 
 
 
@@ -253,49 +253,49 @@ ggplot(dt, aes(x = Time, y = newcombo4, group = ID, color = Treatment)) +
        y = "1880-1420/1880+1420") +
   scale_color_viridis_d() 
 
-ggplot(dt, aes(x = Time, y = new19, group = ID, color = Treatment)) + 
+c <- ggplot(dt, aes(x = Time, y = new19, group = ID, color = Treatment)) + 
   geom_point(size=1.5) +  # 
   geom_line(size=0.7) +   # 
   theme_minimal() + 
-  labs(title = "Zinc All",
+  labs(title = "R-sq: 0.705",
        x = "Time",
-       y = "1880-1420/1880+1420") +
+       y = "1410/1506") +
   scale_color_viridis_d() 
 
 
 
-ggplot(dt, aes(x = Time, y = new20, group = ID, color = Treatment)) + 
+d <- ggplot(dt, aes(x = Time, y = new20, group = ID, color = Treatment)) + 
   geom_point(size=1.5) +  # 
   geom_line(size=0.7) +   # 
   theme_minimal() + 
-  labs(title = "Zinc All",
+  labs(title = "R-sq: 0.669",
        x = "Time",
-       y = "1880-1420/1880+1420") +
+       y = "707/2347") +
   scale_color_viridis_d() 
 
-ggplot(dt, aes(x = Time, y = new21, group = ID, color = Treatment)) + 
+e <- ggplot(dt, aes(x = Time, y = new21, group = ID, color = Treatment)) + 
   geom_point(size=1.5) +  # 
   geom_line(size=0.7) +   # 
   theme_minimal() + 
-  labs(title = "Zinc All",
+  labs(title = "R-sq: 0.737",
        x = "Time",
-       y = "1880-1420/1880+1420") +
+       y = "1397 - 1539") +
   scale_color_viridis_d() 
 
-ggplot(dt, aes(x = Time, y = new22, group = ID, color = Treatment)) + 
+f <- ggplot(dt, aes(x = Time, y = new22, group = ID, color = Treatment)) + 
   geom_point(size=1.5) +  # 
   geom_line(size=0.7) +   # 
   theme_minimal() + 
-  labs(title = "Zinc All",
+  labs(title = "R-sq: 0.667",
        x = "Time",
-       y = "1880-1420/1880+1420") +
+       y = "703 - 1417") +
   scale_color_viridis_d() 
 
 
 library(ggpubr)
 
-#ggarrange(a, b, c, ncol = 3, nrow = 1, 
-#          common.legend = TRUE)#, #legend = "bottom")
+ggarrange(a, b, c, d, e, f, ncol = 3, nrow = 2, 
+         common.legend = TRUE)#, #legend = "bottom")
 
 
 
