@@ -299,3 +299,8 @@ ggarrange(a, b, c, d, e, f, ncol = 3, nrow = 2,
 
 
 
+ggarrange(e, c, d, ncol = 3, nrow = 1, 
+          common.legend = TRUE)#, #legend = "bottom")
+
+
+

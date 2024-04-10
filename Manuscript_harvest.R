@@ -187,7 +187,7 @@ dt2_av <- dt2 %>%
   pivot_wider(names_from = Stat, values_from = Value)
 
 
-write.xlsx(dt2_av, file = "Summmary_pXRF2.xlsx")
+#write.xlsx(dt2_av, file = "Summmary_pXRF2.xlsx")
 }
 
 
@@ -223,7 +223,7 @@ for (i in 7:2179) {
 cor_df <- na.omit(cor_df)
 
 # Optionally, write the correlation coefficients to an Excel file
-write.xlsx(cor_df, file = "Correlation_Coefficients3.xlsx")
+#write.xlsx(cor_df, file = "Correlation_Coefficients3.xlsx")
 
 }
 
@@ -300,6 +300,37 @@ write.xlsx(cor_df, file = "Correlation_Coefficients3.xlsx")
   
   harvest2 <- ggplot(dt_combined, aes(x = Wavelength, y = Reflectance, group = ID, color = Treatment)) + 
     geom_ribbon(aes(ymin = Reflectance - SD, ymax = Reflectance + SD, fill = Treatment), alpha = 0.2, colour=NA) + # Adjusted alpha for SD shadow
+    geom_line(linewidth=0.5) +   # 
+    geom_point(size=0.2, alpha = 0.5) +  #
+    geom_vline(xintercept = 514, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 518, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 707, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 523, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 536, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 1410, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 703, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 1397, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 2420, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1420, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 2347, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 2420, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1880, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1424, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1506, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1417, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1539, linetype = "dashed", color = "red") +# Add a vertical dashed red line at 606 nm
+    theme_minimal() + 
+    labs(title = "Harvest measurements",
+         x = "Wavelength (nm)",
+         y = "Reflectance") +
+    scale_color_viridis_d() + # 
+    scale_fill_viridis_d()    #
+  
+  
+  
+  # with no SD
+  harvest2 <- ggplot(dt_combined, aes(x = Wavelength, y = Reflectance, group = ID, color = Treatment)) + 
+    #geom_ribbon(aes(ymin = Reflectance - SD, ymax = Reflectance + SD, fill = Treatment), alpha = 0.2, colour=NA) + # Adjusted alpha for SD shadow
     geom_line(linewidth=0.5) +   # 
     geom_point(size=0.2, alpha = 0.5) +  #
     geom_vline(xintercept = 514, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
@@ -432,3 +463,69 @@ write.xlsx(cor_df, file = "Correlation_Coefficients3.xlsx")
 }
 
 
+
+#Only Average per Treatment at the harvest
+{
+  
+  dt3 <- dt3 %>%
+    slice(101:108)
+  
+  dt3 <- dt3 %>%
+    slice(-c(4, 5))
+  
+  dt3 <- dt3 %>%
+    filter(str_detect(ID, "^aver"))
+  
+  dt_sd <- dt3 %>%
+    filter(str_detect(ID, "_sd")) %>%
+    mutate(ID = str_replace(ID, "_sd", "")) %>%
+    pivot_longer(cols = 29:2179, names_to = "Wavelength", values_to = "SD")
+  
+  dt_main_long <- dt3 %>%
+    filter(!str_detect(ID, "_sd")) %>%
+    pivot_longer(cols = 29:2179, names_to = "Wavelength", values_to = "Reflectance")
+  
+  dt_combined <- dt_main_long %>%
+    left_join(select(dt_sd, ID, Wavelength, SD), by = c("ID", "Wavelength"))
+  
+  dt_combined <- dt_combined %>%
+    mutate(Wavelength = str_replace_all(Wavelength, "X", ""))
+  
+  dt_combined[,"Wavelength"] <- sapply(dt_combined[,"Wavelength"],as.numeric)
+  
+  dt_combined <- dt_combined %>%
+    filter(Reflectance >= 0)
+  dt_combined <- dt_combined %>%
+    filter(Reflectance >= 0 & Wavelength > 400 & Wavelength <= 2450)
+  
+  harvest2 <- ggplot(dt_combined, aes(x = Wavelength, y = Reflectance, group = ID, color = Treatment)) + 
+    geom_ribbon(aes(ymin = Reflectance - SD, ymax = Reflectance + SD, fill = Treatment), alpha = 0.2, colour=NA) + # Adjusted alpha for SD shadow
+    geom_line(linewidth=0.5) +   # 
+    geom_point(size=0.2, alpha = 0.5) +  #
+    geom_vline(xintercept = 514, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 518, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 707, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 523, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 536, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 1410, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 703, linetype = "dashed", color = "red") + # Add a vertical dashed red line at 606 nm
+    geom_vline(xintercept = 1397, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 2420, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1420, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 2347, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 2420, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1880, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1424, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1506, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1417, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 1539, linetype = "dashed", color = "red") +
+    scale_y_continuous(limits = c(0, 0.73), breaks = c(seq(0, 0.7, by = 0.1))) +
+    theme_classic2() + 
+    labs(title = "Harvest measurements",
+         x = "Wavelength (nm)",
+         y = "Reflectance") +
+    scale_color_viridis_d() + # 
+    scale_fill_viridis_d()    #
+  
+  
+}
