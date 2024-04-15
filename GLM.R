@@ -75,7 +75,7 @@ summary(modelbest)
 
 
 # Predict values using the model
-predicted_values <- predict(model, newdata = dt, type = "response")
+predicted_values <- predict(modelbest, newdata = dt, type = "response")
 
 # Actual values of Zn
 actual_values <- dt$Zn
@@ -89,7 +89,7 @@ rmse <- sqrt(mean(residuals^2))
 # Print the RMSE
 print(rmse)
 
-dt$Predicted_Zn <- predict(model, newdata = dt, type = "response")
+dt$Predicted_Zn <- predict(modelbest, newdata = dt, type = "response")
 
 
 
@@ -187,3 +187,7 @@ model_zn <- lm(Zn ~ Predicted_Zn, data = dt)
 
 # Summary of the model to get R-squared
 summary_model_zn <- summary(model_zn)
+
+
+
+
