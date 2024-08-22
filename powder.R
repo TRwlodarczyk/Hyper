@@ -30,6 +30,7 @@ ggplot(data=dt, aes(x=Wavelength)) +
   geom_line(aes(y=QA2), color="darkgrey") +
   geom_line(aes(y=QA3), color="black") +
   
+  
   scale_x_continuous(limits = c(350, 2500), breaks = c(seq(350, 2500, by = 175))) +
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1)) +
   theme_classic() +
@@ -46,3 +47,5 @@ ggplot(data=dt, aes(x=Wavelength)) +
   ylab("Reflectance")+
   xlab("Wavelength") + 
   ggtitle("Green - center, Red - necrotic side7")
+
+

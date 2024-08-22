@@ -240,3 +240,128 @@ T9 <- ggplot(T9_data, aes(x = Wavelength, y = Reflectance, group = Treatment, co
 
 ggarrange(T0, T1, T3, T4, T5, T6, T7, T8, T9, ncol = 3, nrow = 3, 
           common.legend = TRUE)
+
+
+
+
+
+
+########### Arrange long data to the format where I can add new indicies:
+
+
+str(long_data)
+
+
+dt_transformed <- long_data %>%
+  select(-SD) %>%  # Remove the SD column
+  pivot_wider(names_from = Wavelength, values_from = Reflectance)
+
+dt_transformed <- dt_transformed %>%
+  rename_with(.cols = 3:2150, .fn = ~ paste0("X", .))
+
+
+dt_transformed <- dt_transformed %>%
+  mutate(VI497_517 = (X497- X517) / (X497 + X517))
+
+
+ggplot(dt_transformed, aes(x = Time, y = VI497_517, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal() 
+
+
+
+dt_transformed <- dt_transformed %>%
+  mutate(VI707_2347 = X707/X2347)
+
+
+ggplot(dt_transformed, aes(x = Time, y = VI707_2347, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal() 
+
+
+
+
+
+dt_transformed <- dt_transformed %>%
+  mutate(VI1410_1506 = X1410/X1506)
+
+
+ggplot(dt_transformed, aes(x = Time, y = VI1410_1506, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal() 
+  
+
+
+
+
+dt_transformed <- dt_transformed %>%
+  mutate(VI703_1417 = X703 - X1417)
+
+
+ggplot(dt_transformed, aes(x = Time, y = VI703_1417, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal() 
+
+
+
+
+
+dt_transformed <- dt_transformed %>%
+  mutate(VI1397_1539 = X1397 - X1539)
+
+
+ggplot(dt_transformed, aes(x = Time, y = VI1397_1539, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal() 
+
+
+
+dt_transformed <- dt_transformed %>%
+  mutate(VI553_735 = (X553- X735) / (X553 + X735))
+
+
+ggplot(dt_transformed, aes(x = Time, y = VI553_735, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal() 
+
+
+
+
+
+dt_transformed <- dt_transformed %>%
+  mutate(VI727_517 = (X727- X517) / (X727 + X517))
+
+
+ggplot(dt_transformed, aes(x = Time, y = VI727_517, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal() 
+
+
+
+dt_transformed <- dt_transformed %>%
+  mutate(VI550_728 = (X550 - X728) / (X550 + X728))
+
+
+ggplot(dt_transformed, aes(x = Time, y = VI550_728, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal()
+
+
+
+dt_transformed <- dt_transformed %>%
+  mutate(VI526_728 = (X526 - X728) / (X526 + X728))
+
+
+ggplot(dt_transformed, aes(x = Time, y = VI526_728, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal()
+
