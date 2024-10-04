@@ -141,7 +141,33 @@ write.xlsx(clustered_data, "Project_P_3_clustered_data.xlsx")
 
 
 
+########HANDYPEA#################Clustering of H A N C (healthy, Anthocyanins, Necrosis, Chlorosis) in the leaves based on HANDY PEA!!!!!!!!!!!!!!!
 
+
+
+
+setwd("C:/Users/twlodarczyk/OneDrive - University of Arizona/Desktop/All documents/1 PhD/CNRS + Synch/Hyperspectral Research/1_Experiment/1_Experiment_P/Spreadsheet/Machine Learning")
+dt <-read.delim("Project_P_pXRF_HP_Hyper.txt")
+
+library(caTools)
+
+split_values <- sample.split(dt$Status, SplitRatio = 0.65) 
+train_set<- subset(dt, split_values==T)
+test_set<- subset(dt, split_values==F)
+
+library(rpart)
+
+# Define the columns to use for the prediction
+train_subset <- train_set[, c(20, 149:2198)]  # Status is column 20
+test_subset <- test_set[, c(20, 149:2198)]    # Status is column 20
+mod_class <- rpart(Status ~ ., data = train_subset)
+result_class <- predict(mod_class, test_subset, type = "class")
+table(test_subset$Status, result_class)
+
+
+str(dt)
+colnames(dt[149])
+colnames(dt[20])
 
 
 

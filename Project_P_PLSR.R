@@ -3343,3 +3343,604 @@ print(results)
 
 }
 
+
+
+
+# PLS after adding all 
+
+
+setwd("C:/Users/twlodarczyk/OneDrive - University of Arizona/Desktop/All documents/1 PhD/CNRS + Synch/Hyperspectral Research/1_Experiment/1_Experiment_P/Spreadsheet/PLS")
+dt <-read.delim("Project_P_pXRF_HP_Hyper.txt")
+
+
+dt <- dt %>%
+  filter(Zn_PXRF_cv < 0.2)
+
+
+colnames(dt)[147] #remove 147, 148
+
+dt <- dt %>% 
+  select(-c(147, 148))
+
+#write.xlsx(dt, "Project_P_PLS-cv20-HP.xlsx")
+
+
+
+
+# List of columns to remove (extensive set)
+extensive_columns_to_remove <- c("X2376", "X2046", "X754", "X2375", "X476", "X2047", 
+                                 "X1336", "X1337", "X2048", "X477", "X2374", "X1338", 
+                                 "X2373", "X2049", "X1884", "X1339", "X478", "X2372", 
+                                 "X2050", "X1340", "X479", "X2051", "X2369", "X2370", 
+                                 "X1341", "X2371", "X400", "X2052", "X1342", "X480", 
+                                 "X2368", "X1343", "X2053", "X2367", "X753", "X1883", 
+                                 "X1344", "X2366", "X2054", "X481", "X1345", "X1346", 
+                                 "X2055", "X2365", "X1347", "X2056", "X2364", "X2363", 
+                                 "X1348", "X1882", "X2362", "X482", "X1349", "X2057", 
+                                 "X1350", "X2361", "X483", "X1351", "X2058", "kN...ABS...kF", 
+                                 "X1352", "X2059", "X484", "X2360", "X1353", "X1881", 
+                                 "X2060", "X2359", "X752", "X1354", "X2358", "X1355", 
+                                 "X2061", "X1356", "X2062", "X2357", "X2356", "X1357", 
+                                 "X2063", "X1358", "X1880", "X2355", "X1359", "X1360", 
+                                 "X2064", "X485", "X1361", "X2354", "X2065", "X1362", 
+                                 "X2353", "X2066", "X1363", "X1879", "X1364", "X2352", 
+                                 "X2067", "X2351", "X1365", "X2350", "X1366", "X2068", 
+                                 "X2349", "X1367", "X2069", "X751", "X2348", "X1368", 
+                                 "X486", "X1878", "X2070", "X1369", "X2347", "X2071", 
+                                 "X1370", "X2346", "X2345", "ETo.RC", "X1371", "X2344", 
+                                 "X2072", "X1877", "X1372", "X2073", "X2343", "X1373", 
+                                 "X2342", "X2074", "X487", "X1374", "X2341", "X2075", 
+                                 "X1876", "X1375", "X2340", "X2339", "X2076", "X2077", 
+                                 "X2338", "X1376", "X2078", "X1875", "X1377", "X2337", 
+                                 "X2079", "X1378", "X2336", "X2080", "X488", "X1874", 
+                                 "X2335", "X750", "X1379", "X2081", "X2334", "X1873", 
+                                 "X1380", "X2082", "X2333", "X2083", "X2332", "X2331", 
+                                 "X1381", "X2084", "X1872", "X2330", "X2085", "X2329", 
+                                 "X1382", "X2086", "X1871", "X2328", "X2087", "X489", 
+                                 "X1383", "X1870", "X2088", "X2327", "X1384", "X2089", 
+                                 "X1869", "X2326", "X2325", "X2090", "X2324", "X1868", 
+                                 "X1385", "X2091", "X2323", "X1867", "X2092", "X1866", 
+                                 "X2322", "X1386", "X2093", "X1865", "X2094", "X749", 
+                                 "X1864", "X490", "X1387", "X2321", "X2095", "X1863", 
+                                 "X1862", "X2096", "X2320", "X2319", "X1388", "X1861", 
+                                 "X2097", "X1860", "X1859", "X2318", "X2098", "X1858", 
+                                 "X1857", "X1856", "X1389", "X2099", "X1855", "X2317", 
+                                 "X1854", "X1853", "X2100", "X2316", "X1852", "X1851", 
+                                 "X1390", "X1850", "X2101", "X1849", "X1848", "X1847", 
+                                 "X2102", "X1846", "X1391", "X1845", "X1844", "X2103", 
+                                 "X2315", "X1843", "X2313", "X1842", "X2104", "X1841", 
+                                 "X2314", "X2312", "X2105", "X1392", "X1840", "X1839", 
+                                 "X2106", "X491", "X2311", "X1838", "X1837", "X2310", 
+                                 "X1836", "X1393", "X1835", "X2107", "X1834", "X2309", 
+                                 "X1833", "X2306", "X2307", "X2108", "X2308", "X1832", 
+                                 "X2305", "X1394", "X1831", "X2302", "X2109", "X2239", 
+                                 "X2238", "X1830", "X2237", "X2234", "X2303", "X2304", 
+                                 "X2233", "X2301", "X2245", "X2240", "X2241", "X2244", 
+                                 "X1829", "X2230", "X2110", "X2246", "X1828", "X2235", 
+                                 "X1395", "X2236", "X2300", "X2229", "X2247", "X2242", 
+                                 "X1827", "X2243", "X2231", "X2228", "X2227", "X1826", 
+                                 "X2248", "X2232", "X2111", "X1825", "X2299", "X2249", 
+                                 "X2223", "X2224", "X1824", "X2226", "X2220", "X2219", 
+                                 "X1396", "X2218", "X2225", "X2112", "X2217", "X2222", 
+                                 "X2221", "X1823", "X2252", "X2296", "X2250", "X2216", 
+                                 "X2251", "X2253", "X2295", "X2298", "X1822", "X2215", 
+                                 "X748", "X2113", "X2297", "X1397", "X2254", "X2214", 
+                                 "X1821", "X2213", "X2294", "X2212", "X2255", "X1820", 
+                                 "X2211", "X2209", "X2210", "X1819", "X2293", "X2114", 
+                                 "X2208", "X1818", "X1398", "X2256", "X1817", "X2115", 
+                                 "X2207", "X1816", "X2292", "X2257", "X1399", "X2206", 
+                                 "X2258", "X1815", "X1814", "X1813", "X2290", "X2205", 
+                                 "X2291", "X2116", "X2259", "X1812", "X1400", "X2204", 
+                                 "X2289")
+
+# Remove the specified columns from the dataset
+dt <- dt %>% select(-all_of(extensive_columns_to_remove))
+
+
+
+#write.xlsx(dt, "Project_P_PLS-cv20-HP2.xlsx")
+
+
+
+# List of columns to remove (latest extensive set)
+latest_extensive_columns_to_remove <- c("X2438", "X1895", "X2015", "X2439", "X455", "X2449", 
+                                        "X2441", "X2448", "X2014", "X2440", "X411", "X2446", 
+                                        "X2013", "X408", "X2447", "X2012", "X1896", "X2011", 
+                                        "X2010", "X2009", "X2008", "X454", "X2007", "X1897", 
+                                        "X2006", "X2005", "X2004", "X2003", "X2002", "X1898", 
+                                        "X412", "X453", "X2001", "X409", "X410", "X2000", 
+                                        "X1999", "X1998", "X1899", "X1997", "X1996", "X1995", 
+                                        "X452", "X1994", "X1900", "X1993", "X1992", "X1991", 
+                                        "X413", "X1990", "X1901", "X1989", "X1988", "X451", 
+                                        "X1987", "X1902", "X1986", "X1985", "X414", "X1984", 
+                                        "X415", "X1983", "X1903", "X1982", "dRo..1.dRo.", 
+                                        "X1981", "X418", "X1980", "X1904", "Fm", "ABS.CSm", 
+                                        "X1979", "X1978", "X1976", "X1977", "X450", "X1905", 
+                                        "X1975", "X1974", "X416", "X1973", "X1906", "X1972", 
+                                        "X1971", "X1907", "X1970", "X417", "X1969", "X1908", 
+                                        "X1968", "X449", "X1967", "X1909", "X1966", "X1965", 
+                                        "X1910", "X1964", "X419", "X1963", "X1911", "X1962", 
+                                        "X1961", "X1912", "X448", "X1960", "X1959", "X1958", 
+                                        "X1913", "X425", "X1957", "X1914", "X1956", "X421", 
+                                        "X1955", "X1915", "X1954", "X1952", "X1953", "X1951", 
+                                        "X1916", "X420", "X1917", "X1950", "X1918", "X1919", 
+                                        "X1949", "X426", "X1948", "X1920", "X1947", "X1946", 
+                                        "X1921", "X1945", "X1922", "X1944", "X1923", "X1924", 
+                                        "X1943", "X1939", "X447", "X1925", "X1938", "X1941", 
+                                        "X1937", "X1940", "X1942", "X1926", "X1936", "X1927", 
+                                        "X1929", "X1928", "X1930", "X1935", "X1934", "X1933", 
+                                        "X422", "X1931", "X1932", "X445", "X446", "X424", 
+                                        "X427", "X428", "X423", "X431", "X444", "X429", 
+                                        "X430", "X432", "X443", "X433", "X434", "X437", 
+                                        "X442", "X439", "X438", "X440", "X441", "X436", 
+                                        "X435")
+
+# Remove the specified columns from the dataset
+dt <- dt %>% select(-all_of(latest_extensive_columns_to_remove))
+
+
+
+
+
+
+#write.xlsx(dt, "Project_P_PLS-cv20-HP3.xlsx")
+
+
+
+# List of columns to remove (latest set)
+latest_columns_to_remove <- c("delta.Ro.", "Fv", "TRo.CSm", "X2442", "X2016", "X2445", 
+                              "X2443", "X2017", "X456", "X2437", "X2436", "X2444", 
+                              "X2018", "X407", "X2019", "X1894", "X2020", "X457", 
+                              "X2021", "X2435", "X2022", "X2429", "X2023", "X2430", 
+                              "X2024", "X2432", "X2431", "X2426", "X2425", "X1893", 
+                              "X2025", "X2433", "X458", "X2026", "X2424", "X459", 
+                              "X2423", "X406", "X2027", "X2434", "X2428", "X2427", 
+                              "X460", "X2028", "X862", "X863", "X868", "X867", 
+                              "X864", "X861", "X866", "X865", "X869", "X1892", 
+                              "X860", "X858", "X857", "X872", "X870", "X859", 
+                              "X873", "X871", "X856", "X874", "X853", "X2029", 
+                              "X855", "X875", "X854", "X852", "X876", "X878", 
+                              "X851", "X2030", "X879", "X877", "X880", "X850", 
+                              "X881", "X849", "X848", "X2422", "X847", "X461", 
+                              "X2031", "X884", "X883", "X882", "X885", "X2414", 
+                              "X462", "X886", "X887", "X2413", "X846", "X2032", 
+                              "X888", "X2415", "X845", "X889", "X844", "X843", 
+                              "X2033", "X1891", "X890", "X842", "X891", "X2416", 
+                              "X841", "X892", "X840", "X2034", "X2421", "X893", 
+                              "X839", "X896", "X463", "X894", "X897", "X895", 
+                              "X838", "X2035", "X898", "X837", "X2412", "X899", 
+                              "X2420", "X900", "X901", "X836", "X902", "X2419", 
+                              "X472", "X2036", "X835", "X903", "X2410", "X2411", 
+                              "X1890", "X2417", "X2404", "X834", "X906", "X904", 
+                              "X907", "X905", "X908", "X2037", "X2403", "X2418", 
+                              "X909", "X833", "X2409", "X910", "X832", "X2038", 
+                              "X464", "X912", "X911", "X913", "X831", "X830", 
+                              "X2408", "X2402", "X915", "X916", "X829", "X2039", 
+                              "X914", "X2407", "X2406", "X917", "X2405", "X918", 
+                              "X919", "X828", "X471", "X473", "X1889", "X920", 
+                              "X2040", "X827", "X2401", "X468", "X405", "X469", 
+                              "X921", "X922", "X826", "X923", "X470", "X825", 
+                              "X2400", "X2041", "X824", "X924", "X925", "X926", 
+                              "X823", "X465", "X927", "X467", "X2042", "X928", 
+                              "X822", "X2399", "X929", "X821", "X820", "X466", 
+                              "X930", "X2043", "X819", "X931", "X932", "X1888", 
+                              "X933", "X818", "X934", "X817", "X816", "X2398", 
+                              "X815", "X2044", "X814", "X935", "X792", "X401", 
+                              "X936", "X795", "X797", "X798", "X791", "X794", 
+                              "X793", "X796", "X937", "X813", "X789", "X799", 
+                              "X801", "X800", "X790", "X802", "X788", "X2392", 
+                              "X810", "X938", "X809", "X808", "X787", "X805", 
+                              "X804", "X807", "X811", "X2397", "X803", "X812", 
+                              "X2391", "X806", "X939", "X786", "X941", "X942", 
+                              "X475", "X785", "X2045", "X940", "X2393", "X784", 
+                              "X474", "X402", "X2394", "X783", "X943", "X944", 
+                              "X782", "X1887", "X2396", "X947", "X945", "X781", 
+                              "X2395", "X2390", "X946", "X948", "X780", "X2389", 
+                              "X949", "X950", "X779", "X951", "X778", "X952", 
+                              "X2386", "X953", "X2385", "X2388", "X1886", "X954", 
+                              "X2387", "X777", "X955", "X956", "X957", "X2384", 
+                              "X958", "X962", "X959", "X776", "X960", "X963", 
+                              "X961", "X2383", "X775", "X1885", "X965", "X964", 
+                              "X966", "X968", "X967", "X969", "X403", "X970", 
+                              "X971", "X774", "X972", "X973", "X2380", "X974", 
+                              "X2382", "X975", "X2379", "X773", "X979", "X982", 
+                              "X2381", "X978", "X976", "X981", "X983", "X977", 
+                              "X980", "X2378", "X404", "X987", "X984", "X2377", 
+                              "X772", "X986", "X988", "X985", "X989", "X990", 
+                              "X994", "X991", "X996", "X995", "X997", "X999", 
+                              "X993", "X992", "X1000", "X998", "X771", "X1084", 
+                              "X1083", "X1085", "X1086", "X1082", "X1089", "X1090", 
+                              "X1091", "X770", "X1092", "X1087", "X1081", "X1093", 
+                              "X1088", "X1080", "X1079", "X1094", "X1095", "X1078", 
+                              "X1096", "X1097", "X1077", "X1098", "X1076", "X1099", 
+                              "X1100", "X1075", "X1101", "X1074", "X1073", "X1102", 
+                              "X1103", "X1072", "X769", "X1104", "X1071", "X1105", 
+                              "X1070", "X1106", "X1069", "X1107", "X1067", "X1068", 
+                              "X1066", "X1108", "X1109", "X1065", "X1110", "X768", 
+                              "X1111", "X1064", "X1063", "X1112", "X1062", "X1113", 
+                              "X1061", "X1060", "X1059", "X1114", "X1115", "X1058", 
+                              "X1116", "X1057", "X1056", "X1117", "X1055")
+
+# Remove the specified columns from the dataset
+dt <- dt %>% select(-all_of(latest_columns_to_remove))
+
+
+
+
+#write.xlsx(dt, "Project_P_PLS-cv20-HP4.xlsx")
+
+
+
+# List of columns to remove (latest set)
+latest_columns_to_remove <- c("Origin.to.F1", "X1054", "X1118", "X767", "X1053", "X1119", 
+                              "X1052", "X1051", "X1120", "X1050", "X1039", "X1038", 
+                              "X1016", "X1015", "X1006", "X1007", "X1009", "X1049", 
+                              "X1008", "X1121", "X1010", "X1037", "X1022", "X1005", 
+                              "X1017", "X1021", "X1011", "X1036", "X1018", "X1001", 
+                              "X1040", "X1012", "X1004", "X1042", "X1014", "X1013", 
+                              "X1028", "X1020", "X1019", "X1023", "X1029", "X1043", 
+                              "X1003", "X1002", "X1048", "X1046", "X1041", "X1122", 
+                              "X1025", "X1024", "X1045", "X1044", "X1047", "X1035", 
+                              "X1030", "X1027", "X1031", "X1026", "X1034", "X1032", 
+                              "X1033", "X1123", "X1124", "X766", "X1125", "X1126", 
+                              "X1127", "X1128", "X1129", "X1310", "X1309", "X1311", 
+                              "X1130", "X1308", "X1312", "X1131", "X1307", "X765", 
+                              "X1313", "X1306", "X1314", "X1315", "X1305", "X1132", 
+                              "X1304", "X1316", "X1303", "X1317", "X1133", "X1302", 
+                              "X1318", "X1301", "X1319", "X1134", "X1300", "X1320", 
+                              "X1299", "X1321", "X1135", "X1298", "X1322", "X1297", 
+                              "X1136", "X1323", "X1296", "X764", "X1137", "X1295", 
+                              "X1324", "X1294", "X1138", "X1325", "X1293", "X1139", 
+                              "X1292", "X1326", "X1291", "X1140", "X1327", "X1290", 
+                              "X1141", "X1328", "X1289", "X1676", "X1677", "X1142", 
+                              "X1675", "X1678", "X1674", "X1679", "X1288", "X1673", 
+                              "X1329", "X763", "X1672", "X1287", "X1680", "X1671", 
+                              "X1143", "X1682", "X1681", "X1670", "X1286", "X1683", 
+                              "X1330", "X1669", "X1285", "X1144", "X1684", "X1668", 
+                              "X1800", "X1331", "X1799", "X1667", "X1284", "X1685", 
+                              "X1145", "X1666", "X1332", "X1283", "X1798", "X1686", 
+                              "X1282", "X1665", "X1146", "X1797", "X1281", "X1333", 
+                              "X1280", "X1687", "X1664", "X1796", "X1279", "X1278", 
+                              "X1147", "X1334", "X1663", "X1277", "X1795", "X1688", 
+                              "X1811", "X1810", "X1276", "X1275", "X1809", "X1274", 
+                              "X1662", "X1148", "X1794", "X1273", "X1689", "X1335", 
+                              "X1272", "X1661", "X1808", "X1271", "X1270", "X1793", 
+                              "X1660", "X1269", "X1149", "X1807", "X762", "X1659", 
+                              "X1268", "X1690", "X1806", "X1658", "X1792", "X1267", 
+                              "X1266", "X1150", "X1265", "X1264", "X1657", "X1791", 
+                              "X1790", "X1263", "X1262", "X1691", "X1805", "X1789", 
+                              "X1656", "X1261", "X1151", "X1788", "X1729", "X1728", 
+                              "X1727", "X1730", "X1655", "X1260", "X1722", "X1721", 
+                              "X1787", "X1654", "X1723", "X1724", "X1804", "X1726", 
+                              "X1692", "X1259", "X1720", "X1725", "X1152", "X1803", 
+                              "X1653", "X1731", "X1786", "X1719", "X1732", "X1733", 
+                              "X1258", "X1735", "X1734", "X1652", "X1153", "X1693", 
+                              "X1257", "X1736", "X1785", "X1718", "X1802", "X1651", 
+                              "X1256", "X1717", "X1154", "X1801", "X1737", "X1255", 
+                              "X1784", "X1694", "X1254", "X1650", "X1716", "X1738", 
+                              "X1253", "X1252", "X1783", "X2203", "X1739", "X1155", 
+                              "X1251", "X1649", "X1715", "X2202", "X1250", "X1695", 
+                              "X2201", "X1740", "X1156", "X1249", "X1648", "X1782", 
+                              "X2200", "X1157", "X1714", "X1248")
+
+# Remove the specified columns from the dataset
+dt <- dt %>% select(-all_of(latest_columns_to_remove))
+
+
+
+
+
+
+#write.xlsx(dt, "Project_P_PLS-cv20-HP5.xlsx")
+
+
+# List of columns to remove (latest set)
+latest_columns_to_remove <- c("X1647", "X1158", "X1159", "X2260", "X1781", "X1741", 
+                              "X1247", "X1780", "X1696", "X1646", "X1160", "X2199", 
+                              "X1779", "X1713", "X1246", "X1778", "X1645", "X1161", 
+                              "X1742", "X1776", "X1777", "X1245", "X761", "X1697", 
+                              "X1162", "X1644", "X2198", "X1775", "X1244", "X1712", 
+                              "X1743", "X1774", "X1243", "X1163", "X1643", "X1744", 
+                              "X1773", "X1747", "X1242", "X2261", "X1745", "X1771", 
+                              "X1698", "X1746", "X1772", "X1164", "X1770", "X1748", 
+                              "X1711", "X1642", "X1749", "X2197", "X1165", "X1769", 
+                              "X1241", "X1768", "X1750", "X1166", "X1699", "X1240", 
+                              "X1710", "X1751", "X1752", "X1416", "X1641", "X1167", 
+                              "X1417", "X1767", "X1765", "X1418", "X1763", "X1764", 
+                              "X1753", "X1415", "X1766", "X1762", "X2196", "X1414", 
+                              "X1413", "X1419", "X1412", "X1168", "X1761", "X1754", 
+                              "X1411", "X1239", "X1760", "X1759", "X1410", "X1700", 
+                              "X1755", "X1758", "X1709", "X1409", "X1756", "X1420", 
+                              "X1757", "X1640", "X1408", "X1238", "X2195", "X1169", 
+                              "X1421", "X1407", "X1701", "X1422", "X1237", "X1406", 
+                              "X2262", "X1170", "X1423", "X1708", "X1639", "X1236", 
+                              "X1424", "X1702", "X2194", "X1171", "X1425", "X1405", 
+                              "X1235", "X1638", "X1426", "X1703", "X1707", "X1427", 
+                              "X2193", "X1172", "X1234", "X1428", "X1404", "X1706", 
+                              "X1704", "X1705", "X1429", "X1173", "X1637", "X2192", 
+                              "X1430", "X1233", "X2263", "X1403", "X1174", "X1431", 
+                              "X1432", "X1636", "X1433", "X1402", "X2191", "X1232", 
+                              "X2264", "X1175", "X1434", "X1401", "X1435", "X1231", 
+                              "X1635", "X1436", "X1176", "X2190", "X1437", "X1438", 
+                              "X1439", "X1230", "X1440", "X2265", "X1177", "X1441", 
+                              "X1634", "X1451", "X1442", "X1452", "X1458", "X1453", 
+                              "X1443", "X1449", "X1229", "X1446", "X2266", "X1454", 
+                              "X1444", "X2189", "X1448", "X1445", "X1447", "X1178", 
+                              "X1455", "X1459", "X1450", "X1456", "X1457", "X1460", 
+                              "X1461", "X1228", "X1462", "X1633", "X760", "X1179", 
+                              "X1464", "X1463", "X2188", "X1465", "X1227", "X1466", 
+                              "X1632", "X1467", "X1180", "X2267", "X1468", "X1469", 
+                              "X1226", "X2187", "X1631", "X1470", "X1181", "X1471", 
+                              "X1630", "X1225", "X1472", "X1473", "X1182", "X1474", 
+                              "X1629", "X2186", "X1475", "X1224", "X1183", "X1476", 
+                              "X1628", "X1477", "X1223", "X1184", "X2185", "X1478", 
+                              "X2268", "X1627", "X1479", "X1222", "X1480", "X1185", 
+                              "X1481", "X2184", "X1221", "X1626", "X1482", "X1186", 
+                              "X1220", "X2183", "X2182", "X1625", "X1483", "X1219", 
+                              "X1187", "X1484", "X1218", "X2181", "X1624", "X1188", 
+                              "X1217", "X1485", "X1486", "X2269", "X1487", "X1189", 
+                              "X1623", "X1216", "X1488", "X2180", "X1489", "X1215", 
+                              "X1490", "X2179", "X1190", "X1491", "X2178", "X1622", 
+                              "X1214", "X2270", "X1492", "X1213", "X1191", "X1192", 
+                              "X2177", "X1493", "X1212", "X1621", "X1193", "X1211", 
+                              "X1494", "X1210", "X2176", "X1194", "X1620", "X1209", 
+                              "X1495", "X759", "X1195", "X1208", "X1496", "X1497")
+
+# Remove the specified columns from the dataset
+dt <- dt %>% select(-all_of(latest_columns_to_remove))
+
+
+
+#write.xlsx(dt, "Project_P_PLS-cv20-HP6.xlsx")
+
+
+# List of columns to remove (latest set)
+latest_columns_to_remove <- c("Fv.Fo", "phi.Po....1.phi.Po..", "kP...ABS...kF", "REo.RC", 
+                              "X2175", "X1207", "X1196", "X1498", "X1619", "X1206", 
+                              "X2271", "X1205", "X1499", "X2273", "X1199", "X1197", 
+                              "X1200", "X2117", "X1500", "X1204", "X1201", "X1198", 
+                              "X1202", "X2118", "X1618", "X1203", "X1501", "X2272", 
+                              "X2174", "X2119", "X1502", "X2274", "X1617", "X1503", 
+                              "X2173", "X2172", "X2120", "X1504", "X1616", "X1505", 
+                              "X2171", "X2121", "X2122", "X1507", "X1506", "X1615", 
+                              "X1508", "X2170", "X2123", "X1509", "X1614", "X2275", 
+                              "X2280", "X1510", "X1511", "X2279", "X2124", "X2169", 
+                              "X2281", "X1512", "X2282", "X1513", "X2276", "X1613", 
+                              "X2283", "X1514", "X1515", "X2125", "X2168", "X2284", 
+                              "X1516", "X1517", "X2288", "X1518", "X2277", "X1612", 
+                              "X2278", "X1519", "X2285", "X2287", "X2286", "X1520", 
+                              "X2126", "X2167", "X1611", "X1521", "X1522", "X2166", 
+                              "X2127", "X1523", "X1524", "X2165", "X2163", "X2130", 
+                              "X1525", "X2131", "X1610", "X2164", "X1526", "X2162", 
+                              "X2132", "X2128", "X1527", "X2133", "X2129", "X1528", 
+                              "X2134", "X1529", "X1609", "X1530", "X2161", "X2135", 
+                              "X1531", "X2160", "X1532", "X2159", "X2136", "X2137", 
+                              "X1608", "X1533", "X2158", "X1534", "X1535", "X2157", 
+                              "X1536", "X2138", "X2156", "X1537", "X1607", "X2155", 
+                              "X1538", "X2154", "X1539", "X2153", "X1606", "X2152", 
+                              "X1540", "X2151", "X2139", "X1541", "X1605", "X2143", 
+                              "X2140", "X758", "X2144", "X2150", "X1542", "X2141", 
+                              "X2147", "X2148", "X2145", "X2146", "X2149", "X2142", 
+                              "X1604", "X1543", "X1544", "X1545", "X1546", "X1547", 
+                              "X1603", "X1548", "X1549", "X1550", "X1602", "X1551", 
+                              "X1601", "X1552", "X1600", "X1553", "X1599", "X1554", 
+                              "X1555", "X1598", "X1556", "X1557", "X1558", "X1597", 
+                              "X1559", "X1560", "X1561", "X1596", "X1562", "X1595", 
+                              "X1563", "X1594", "X1564", "X1593", "X1565", "X1592", 
+                              "X1566", "X1591", "X1567", "X1590", "X1568", "X1589", 
+                              "X1569", "X1588", "X1570", "X1571", "X1573", "X1572", 
+                              "X1587", "X1574", "X1575", "X1576", "X1586", "X1577", 
+                              "X1585", "X1584", "X1578", "X1583", "X1582", "X1581", 
+                              "X1579", "X1580", "X757", "X756", "X492", "X755", 
+                              "X493", "X494", "Sm.t.Fm.", "X495", "X672", "X671", 
+                              "X673", "X670", "X674", "X669", "X675", "X496", 
+                              "X668", "F5", "X676", "X667", "X497", "X677", "X666", 
+                              "X678", "X498", "X665", "TRo.CSo", "X679", "X664", 
+                              "X499", "X680", "X747")
+
+# Remove the specified columns from the dataset
+dt <- dt %>% select(-all_of(latest_columns_to_remove))
+
+
+
+#write.xlsx(dt, "Project_P_PLS-cv20-HP7.xlsx")
+
+
+# List of columns to remove (latest set)
+latest_columns_to_remove <- c("psi.Eo.", "PI.Inst.", "PI.abs", "psi.Eo...1.psi.Eo..", 
+                              "phi.Eo.", "REo.CSo", "N", "F4.to.F5", "F1.to.F5", 
+                              "F3.to.F4", "F1.to.F4", "ETo.CSm", "Fv.Fm", "phi.Po.", 
+                              "ETo.CSo", "F1.to.F3", "X663", "X681", "X500", "X662", 
+                              "X746", "Fo.Fm", "Fo", "ABS.CSo", "DIo.CSm", "X661", 
+                              "X682", "DIo.CSo", "X501", "X745", "X660", "X659", 
+                              "X683", "X502", "X658", "X744", "X657", "X656", 
+                              "X503", "X655", "X684", "X654", "X743", "X653", 
+                              "X652", "X651", "X504", "X650", "X742", "X685", 
+                              "X649", "X505", "X648", "X741", "F4", "F1", "X647", 
+                              "X686", "X506", "DIo.RC", "X646", "X740", "X645", 
+                              "X507", "X687", "X644", "X643", "X739", "X508", 
+                              "Vj", "F2", "X642")
+
+# Remove the specified columns from the dataset
+dt <- dt %>% select(-all_of(latest_columns_to_remove))
+
+
+#write.xlsx(dt, "Project_P_PLS-cv20-HP8.xlsx")
+
+
+
+# List of columns to remove (latest set)
+latest_columns_to_remove <- c("Area", "t.for.Fm", "phi.Ro.", "REo.CSm", "PI.total", 
+                              "DF.abs", "X688", "X641", "X509", "X738", "X640", 
+                              "X639", "X510", "X638", "X689", "X637", "X737", 
+                              "X636", "X511", "X635", "X634", "F3", "X633", 
+                              "Vi", "X632", "X631", "X630", "X629", "X628", 
+                              "X627", "X512", "X626", "X625", "X624", "X690", 
+                              "X623", "X736", "X622", "X621", "dVG.dto", "X620", 
+                              "X513", "X619", "X618", "X617", "X616", "X514", 
+                              "X691", "X615", "X735", "X614", "X613")
+
+# Remove the specified columns from the dataset
+dt <- dt %>% select(-all_of(latest_columns_to_remove))
+
+
+
+
+#write.xlsx(dt, "Project_P_PLS-cv20-HP9.xlsx")
+
+#### Indicies based on what left
+
+
+
+colnames(dt)[89] #here the hyper cols starts 
+dt[, 89:236] <- lapply(dt[, 89:236], as.numeric)
+
+
+# Get column names for the relevant columns (89 to 236)
+relevant_columns <- names(dt)[89:236]
+
+# Function to calculate the index for a pair of columns
+calculate_index <- function(col1, col2) {
+  index <- (dt[[col1]] - dt[[col2]]) / (dt[[col1]] + dt[[col2]])
+  # Handle Inf and NaN by replacing them with NA
+  index[is.infinite(index) | is.nan(index)] <- NA
+  return(index)
+}
+
+# Create a dataframe to hold the names of new indices and their R-squared values
+results <- data.frame(Index = character(), R_squared = numeric(), stringsAsFactors = FALSE)
+
+# Iterate over the pairs of columns to create new indices and calculate R-squared values
+for (i in 1:(length(relevant_columns) - 1)) {
+  for (j in (i + 1):length(relevant_columns)) {
+    col1 <- relevant_columns[i]
+    col2 <- relevant_columns[j]
+    new_col_name <- paste(col1, col2, sep = "_")
+    
+    # Calculate the index
+    dt[[new_col_name]] <- calculate_index(col1, col2)
+    
+    # Skip if all values in the new index column are NA
+    if (all(is.na(dt[[new_col_name]]))) next
+    
+    # Remove rows with NA in the new index column and Zn_PXRF_mean
+    valid_rows <- !is.na(dt[[new_col_name]]) & !is.na(dt$Zn_PXRF_mean)
+    
+    # Fit the linear model and calculate R-squared
+    model <- lm(dt[[new_col_name]][valid_rows] ~ dt$Zn_PXRF_mean[valid_rows])
+    r_squared <- summary(model)$r.squared
+    
+    # Add the result to the results dataframe
+    results <- rbind(results, data.frame(Index = new_col_name, R_squared = r_squared))
+  }
+}
+
+# Display the results
+results
+
+
+write.xlsx(results, "Project_P_PLS-cv20-HP9_Normalized_Index.xlsx")
+
+
+#############################these are yet to be analyzed below:
+
+
+
+
+relevant_columns <- names(dt)[89:236]
+
+
+calculate_index <- function(col1, col2) {
+  index <- (dt[[col1]]) / (dt[[col2]])
+  # Handle Inf and NaN by replacing them with NA
+  index[is.infinite(index) | is.nan(index)] <- NA
+  return(index)
+}
+
+# Create a dataframe to hold the names of new indices and their R-squared values
+results <- data.frame(Index = character(), R_squared = numeric(), stringsAsFactors = FALSE)
+
+# Iterate over the pairs of columns to create new indices and calculate R-squared values
+for (i in 1:(length(relevant_columns) - 1)) {
+  for (j in (i + 1):length(relevant_columns)) {
+    col1 <- relevant_columns[i]
+    col2 <- relevant_columns[j]
+    new_col_name <- paste(col1, col2, sep = "_")
+    
+    # Calculate the index
+    dt[[new_col_name]] <- calculate_index(col1, col2)
+    
+    # Skip if all values in the new index column are NA
+    if (all(is.na(dt[[new_col_name]]))) next
+    
+    # Remove rows with NA in the new index column and Zn_PXRF_mean
+    valid_rows <- !is.na(dt[[new_col_name]]) & !is.na(dt$Zn_PXRF_mean)
+    
+    # Fit the linear model and calculate R-squared
+    model <- lm(dt[[new_col_name]][valid_rows] ~ dt$Zn_PXRF_mean[valid_rows])
+    r_squared <- summary(model)$r.squared
+    
+    # Add the result to the results dataframe
+    results <- rbind(results, data.frame(Index = new_col_name, R_squared = r_squared))
+  }
+}
+
+# Display the results
+results
+
+write.xlsx(results, "Project_P_PLS-cv20-HP9_Ratio_Index.xlsx")
+
+
+
+
+
+relevant_columns <- names(dt)[89:236]
+
+
+calculate_index <- function(col1, col2) {
+  index <- (dt[[col1]]) - (dt[[col2]])
+  # Handle Inf and NaN by replacing them with NA
+  index[is.infinite(index) | is.nan(index)] <- NA
+  return(index)
+}
+
+# Create a dataframe to hold the names of new indices and their R-squared values
+results <- data.frame(Index = character(), R_squared = numeric(), stringsAsFactors = FALSE)
+
+# Iterate over the pairs of columns to create new indices and calculate R-squared values
+for (i in 1:(length(relevant_columns) - 1)) {
+  for (j in (i + 1):length(relevant_columns)) {
+    col1 <- relevant_columns[i]
+    col2 <- relevant_columns[j]
+    new_col_name <- paste(col1, col2, sep = "_")
+    
+    # Calculate the index
+    dt[[new_col_name]] <- calculate_index(col1, col2)
+    
+    # Skip if all values in the new index column are NA
+    if (all(is.na(dt[[new_col_name]]))) next
+    
+    # Remove rows with NA in the new index column and Zn_PXRF_mean
+    valid_rows <- !is.na(dt[[new_col_name]]) & !is.na(dt$Zn_PXRF_mean)
+    
+    # Fit the linear model and calculate R-squared
+    model <- lm(dt[[new_col_name]][valid_rows] ~ dt$Zn_PXRF_mean[valid_rows])
+    r_squared <- summary(model)$r.squared
+    
+    # Add the result to the results dataframe
+    results <- rbind(results, data.frame(Index = new_col_name, R_squared = r_squared))
+  }
+}
+
+# Display the results
+results
+
+
+write.xlsx(results, "Project_P_PLS-cv20-HP9_Difference_Index.xlsx")
+
+
+
+
+
+
+

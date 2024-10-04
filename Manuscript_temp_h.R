@@ -6,9 +6,10 @@
 library(tidyverse)
 library(ggpubr)
 library(pls)
+library(dplyr)
 
 setwd("C:/Users/twlodarczyk/OneDrive - University of Arizona/Desktop/All documents/1 PhD/CNRS + Synch/Hyperspectral Research/1_Experiment/Analysis")
-dt <-read.delim("Area_spectrum_temp_2.2.24.txt")
+#dt <-read.delim("Area_spectrum_temp_2.2.24.txt")
 dt <-read.delim("Area_spectrum_temporal_av.txt")
 
 
@@ -89,23 +90,39 @@ library(tidyverse)
 
 # Pivot the dataset
 # Use pivot_longer to go to a long format
+#long_data <- dt %>%
+#  pivot_longer(cols = -Wavelength, names_to = "ID", values_to = "Reflectance") %>%
+  # Generate a flag for SD columns and separate Time from the rest of the ID
+#  mutate(SD_flag = str_detect(ID, "_sd$"),
+#         ID = str_replace(ID, "_sd$", ""),
+#         Time = str_extract(ID, "T\\d+"),
+#         Treatment = str_replace(ID, "T\\d+", "")) %>%
+#  # Spread the SD_flag to wide format to separate Reflectance and SD
+#  pivot_wider(names_from = SD_flag, values_from = Reflectance, 
+#              names_prefix = "Value_") %>%
+  # Rename the columns
+#  rename(Reflectance = Value_FALSE, SD = Value_TRUE) %>%
+  # Select the desired order of columns
+#  select(Treatment, Time, Wavelength, Reflectance, SD)
+
+# View the head of the reshaped dataframe to confirm it's correct
+#head(long_data)
+
+
+
+
 long_data <- dt %>%
   pivot_longer(cols = -Wavelength, names_to = "ID", values_to = "Reflectance") %>%
-  # Generate a flag for SD columns and separate Time from the rest of the ID
   mutate(SD_flag = str_detect(ID, "_sd$"),
          ID = str_replace(ID, "_sd$", ""),
          Time = str_extract(ID, "T\\d+"),
          Treatment = str_replace(ID, "T\\d+", "")) %>%
-  # Spread the SD_flag to wide format to separate Reflectance and SD
   pivot_wider(names_from = SD_flag, values_from = Reflectance, 
               names_prefix = "Value_") %>%
-  # Rename the columns
-  rename(Reflectance = Value_FALSE, SD = Value_TRUE) %>%
-  # Select the desired order of columns
-  select(Treatment, Time, Wavelength, Reflectance, SD)
+  # Rename the columns manually
+  select(Treatment, Time, Wavelength, Reflectance = Value_FALSE, SD = Value_TRUE)
 
-# View the head of the reshaped dataframe to confirm it's correct
-head(long_data)
+
 
 
 #filter to remove negative values
@@ -245,11 +262,28 @@ ggarrange(T0, T1, T3, T4, T5, T6, T7, T8, T9, ncol = 3, nrow = 3,
 
 
 
-
+########### First run LINE 12, next long data LINE 92 then LINE 255
 ########### Arrange long data to the format where I can add new indicies:
 
 
 str(long_data)
+
+dt_transformed <- dt_transformed %>%
+  mutate(CB4 = X524 - X600) 
+
+ggplot(dt_transformed, aes(x = Time, y = CB4, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal() 
+
+
+dt_transformed <- dt_transformed %>%
+  mutate(CB1 = ((X588-X592)*X722)/X550)
+
+ggplot(dt_transformed, aes(x = Time, y = CB1, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal() 
 
 
 dt_transformed <- long_data %>%
@@ -272,7 +306,62 @@ ggplot(dt_transformed, aes(x = Time, y = VI497_517, color = Treatment, group = T
 
 
 dt_transformed <- dt_transformed %>%
+  mutate(VI524_600 = (X524- X600))
+
+ggplot(dt_transformed, aes(x = Time, y = VI524_600, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal() 
+
+
+dt_transformed <- dt_transformed %>%
+  mutate(VI588_592 = (X588 - X592))
+
+ggplot(dt_transformed, aes(x = Time, y = VI588_592, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal() 
+
+
+
+
+dt_transformed <- dt_transformed %>%
+  mutate(VI550_730 = (X550- X730) / (X550 + X730))
+
+ggplot(dt_transformed, aes(x = Time, y = VI550_730, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal() 
+
+
+ggplot(dt_transformed, aes(x = Time, y = X550, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal() 
+
+
+ggplot(dt_transformed, aes(x = Time, y = X719, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal() 
+
+
+ggplot(dt_transformed, aes(x = Time, y = X400, color = Treatment, group = Treatment)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  geom_line(size=1) +
+  theme_minimal() 
+
+
+
+
+dt_transformed <- dt_transformed %>%
   mutate(VI707_2347 = X707/X2347)
+
+
+
+
+
+
 
 
 ggplot(dt_transformed, aes(x = Time, y = VI707_2347, color = Treatment, group = Treatment)) + 
@@ -365,3 +454,49 @@ ggplot(dt_transformed, aes(x = Time, y = VI526_728, color = Treatment, group = T
   geom_line(size=1) +
   theme_minimal()
 
+
+
+
+
+install.packages("ggplot2")
+install.packages("gganimate")
+install.packages("ggplot2")
+install.packages("gifski")  # for saving the animation as a gif
+
+
+
+library(ggplot2)
+library(dplyr)
+library(gifski)
+library(png)  # for reading images
+
+# Ensure your data is in long format
+dt_long <- dt_transformed %>%
+  pivot_longer(cols = starts_with("X"), names_to = "Wavelength", values_to = "Value")
+
+# Get unique wavelengths
+wavelengths <- unique(dt_long$Wavelength)
+
+# Directory to save individual frames
+dir.create("frames")
+
+# Loop through wavelengths and save individual plots as PNGs
+for (i in seq_along(wavelengths)) {
+  p <- ggplot(dt_long %>% filter(Wavelength == wavelengths[i]), 
+              aes(x = Time, y = Value, color = Treatment, group = Treatment)) +
+    geom_point(size = 3) +
+    geom_line(size = 1) +
+    theme_minimal() +
+    labs(title = paste("Wavelength:", wavelengths[i]))
+  
+  ggsave(filename = paste0("frames/frame_", sprintf("%03d", i), ".png"), plot = p, width = 8, height = 6)
+}
+
+# Combine individual PNGs into a GIF
+png_files <- list.files("frames", pattern = "frame_.*png", full.names = TRUE)
+gifski(png_files, gif_file = "plot_animation.gif", width = 800, height = 600, delay = 0.1)
+
+# Cleanup frames (optional)
+unlink("frames", recursive = TRUE)
+
+str(dt_long)

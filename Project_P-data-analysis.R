@@ -445,3 +445,109 @@ ggplot(dt, aes(x = Zn_PXRF_mean, y = VI497_517, color = Status)) +
   labs(title = "",
        x = "Zn conc in leaf",
        y = "VI497_517")
+
+
+
+ggplot(dt, aes(x = Zn_PXRF_mean, y = t.for.Fm, color = Status)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  theme_minimal() + 
+  labs(title = "",
+       x = "Zn conc in leaf",
+       y = "t.for.Fm")
+
+corr.test(dt$t.for.Fm, dt$Zn_PXRF_mean) # 
+
+
+
+
+
+dt <- dt %>%
+  mutate(VI588_592 = (X588 - X592))
+
+ggplot(dt, aes(x = Zn_PXRF_mean, y = VI588_592, color = Status)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  theme_minimal() + 
+  labs(title = "",
+       x = "Zn conc in leaf",
+       y = "VI588_592")
+
+dt <- dt %>%
+  mutate(gamma.RC....1.gamma.RC.._X553 = (gamma.RC....1.gamma.RC../X553))
+
+ggplot(dt, aes(x = Zn_PXRF_mean, y = gamma.RC....1.gamma.RC.._X553, color = Status)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  theme_minimal() + 
+  labs(title = "",
+       x = "Zn conc in leaf",
+       y = "gamma.RC....1.gamma.RC.._X553")
+
+
+ggplot(dt, aes(x = Zn_PXRF_mean, y = X553, color = Status)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  theme_minimal() + 
+  labs(title = "",
+       x = "Zn conc in leaf",
+       y = "gamma.RC....1.gamma.RC.._X553")
+
+ggplot(dt, aes(x = gamma.RC....1.gamma.RC.., y = X553, color = Status)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  theme_minimal() + 
+  labs(title = "",
+       x = "Zn conc in leaf",
+       y = "gamma.RC....1.gamma.RC.._X553")
+
+
+
+ggplot(dt, aes(x = Zn_PXRF_mean , y = gamma.RC....1.gamma.RC.., color = Status)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  theme_minimal() + 
+  labs(title = "",
+       x = "Zn conc in leaf",
+       y = "gamma.RC....1.gamma.RC..")
+
+
+corr.test(dt$gamma.RC....1.gamma.RC.._X553, dt$Zn_PXRF_mean) # -0.67
+corr.test(dt$X553, dt$Zn_PXRF_mean) # 0.63
+corr.test(dt$gamma.RC....1.gamma.RC.., dt$Zn_PXRF_mean) # 0.53
+
+
+
+
+dt <- dt %>%
+  mutate(VI524_600 = (X524 - X600))
+
+ggplot(dt, aes(x = Zn_PXRF_mean , y = VI524_600, color = Status)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  theme_minimal() + 
+  labs(title = "",
+       x = "Zn conc in leaf",
+       y = "VI524_600")
+
+
+
+
+dt <- dt %>%
+  mutate(VISM_553 = (Sm / X553))
+
+
+ggplot(dt, aes(x = Zn_PXRF_mean , y = VISM_553, color = Status)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  theme_minimal() + 
+  labs(title = "",
+       x = "Zn conc in leaf",
+       y = "VISM_553")
+
+corr.test(dt$VISM_553, dt$Zn_PXRF_mean) # -0.66
+
+
+
+dt <- dt %>%
+  mutate(DVI524_600 = (X524 - X600))
+
+
+ggplot(dt, aes(x = Zn_PXRF_mean , y = DVI524_600, color = Status)) + 
+  geom_point(size=3) +  # adds the scatter plot points
+  theme_minimal() + 
+  labs(title = "",
+       x = "Zn conc in leaf",
+       y = "DVI524_600")
